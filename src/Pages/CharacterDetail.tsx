@@ -16,6 +16,26 @@ const CHARATER_QUERY = gql`
   }
 `;
 
+
+const CHARACTERS_QUERY = gql`
+  query Characters {
+    characters {
+      results {
+        id
+        name
+        image
+        status
+        gender
+        origin {
+          id
+          name
+          type
+        }
+      }
+    }
+  }
+`;
+
 const CharacterDetail = () => {
   const { query } = useRouter();
 
@@ -36,17 +56,34 @@ const CharacterDetail = () => {
   )
 }
 
-export async function getStaticProps(){
+export async function getStaticProps(context){
+  console.log('context:', context);
   const apolloClient = initializeApollo();
   
   await apolloClient.query({
-     query: CHARATER_QUERY, 
+     query: CHARATER_QUERY,
+     variables: { id: context.params.cid }
   })
 
   return {
     props:{
       [APOLLO_STATE_PROP_NAME]: apolloClient.cache.extract(),
     },
+  }
+}
+
+export async function getStaticPaths(){
+  const apolloClient = initializeApollo();
+
+  const response = await apolloClient.query({
+    query: CHARACTERS_QUERY,
+  })
+  
+  return {
+    paths: response.data.characters.results.map(character => ({ 
+      params: { cid: character.id }
+    })),
+    fallback: false
   }
 }
 

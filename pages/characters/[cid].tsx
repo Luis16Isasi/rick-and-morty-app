@@ -1,1 +1,1 @@
-export { default } from '../../src/Pages/CharacterDetail';
+export { default, getStaticProps, getStaticPaths     } from '../../src/Pages/CharacterDetail';
